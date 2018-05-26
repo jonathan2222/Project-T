@@ -1,73 +1,45 @@
 #include <iostream>
 #include "SFML\Network.hpp"
 
-const unsigned short PORT = 5000;
-const std::string IPADDRESS("192.168.10.163");//change to suit your needs
-
-std::string msgSend;
-
-sf::TcpSocket socket;
-sf::Mutex globalMutex;
-bool quit = false;
-
-void doStuff(void)
-{
-	static std::string oldMsg;
-	while (!quit)
-	{
-		sf::Packet packetSend;
-		globalMutex.lock();
-		packetSend << msgSend;
-		globalMutex.unlock();
-
-		socket.send(packetSend);
-
-		std::string msg;
-		sf::Packet packetReceive;
-
-		socket.receive(packetReceive);
-		if ((packetReceive >> msg) && oldMsg != msg && !msg.empty())
-		{
-			std::cout << msg << std::endl;
-			oldMsg = msg;
-		}
-	}
-}
+const unsigned char PORT = 55002;
+const std::string IPADDRESS("192.168.10.163");
 
 void server(void)
 {
-	sf::TcpListener listener;
-	listener.listen(PORT);
-	listener.accept(socket);
-	std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl;
+	// Create a socket and bind it to the port 55002
+	sf::UdpSocket socket;
+	socket.bind(PORT);
+	// Receive a message from anyone
+	char buffer[1024];
+	std::size_t received = 0;
+	sf::IpAddress sender;
+	unsigned short port;
+	socket.receive(buffer, sizeof(buffer), received, sender, port);
+	std::cout << sender.toString() << " said: " << buffer << std::endl;
+	// Send an answer
+	std::string message = "Welcome " + sender.toString();
+	socket.send(message.c_str(), message.size() + 1, sender, port);
 }
 
 bool client(void)
 {
-	if (socket.connect(IPADDRESS, PORT) == sf::Socket::Done)
-	{
-		std::cout << "Connected\n";
-		return true;
-	}
-	return false;
-}
-
-void getInput(void)
-{
-	std::string s;
-	std::cout << "\nEnter \"exit\" to quit or message to send: ";
-	getline(std::cin, s);
-	if (s == "exit")
-		quit = true;
-	globalMutex.lock();
-	msgSend = s;
-	globalMutex.unlock();
+	// Create a socket and bind it to the port 55001
+	sf::UdpSocket socket;
+	socket.bind(PORT);
+	// Send a message to 192.168.1.50 on port 55002
+	std::string message = "Hi, I am " + sf::IpAddress::getLocalAddress().toString();
+	socket.send(message.c_str(), message.size() + 1, "192.168.1.50", PORT);
+	// Receive an answer (most likely from 192.168.1.50, but could be anyone else)
+	char buffer[1024];
+	std::size_t received = 0;
+	sf::IpAddress sender;
+	unsigned short port;
+	socket.receive(buffer, sizeof(buffer), received, sender, port);
+	std::cout << sender.toString() << " said: " << buffer << std::endl;
 }
 
 int main()
 {
-	sf::Thread* thread = nullptr;
-
 	char who;
 	std::cout << "Client (c) or Server (s): ";
 	std::cin >> who;
@@ -76,20 +48,6 @@ int main()
 		server();
 	else 
 		client();
-
-	thread = new sf::Thread(&doStuff);
-	thread->launch();
-
-	while (!quit)
-	{
-		getInput();
-	}
-
-	if (thread)
-	{
-		thread->wait();
-		delete thread;
-	}
 
 	return 0;
 }
