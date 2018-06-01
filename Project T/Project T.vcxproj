@@ -125,7 +125,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GUI\Display.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utils\Patterns\Observable.cpp" />
+    <ClCompile Include="Utils\Patterns\Observer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GUI\Display.h" />
+    <ClInclude Include="Utils\Patterns\Observable.h" />
+    <ClInclude Include="Utils\Patterns\Observer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
