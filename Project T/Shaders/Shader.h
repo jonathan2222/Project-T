@@ -13,6 +13,7 @@ public:
 	// pathName is the path and the name of the directory which the files are in.
 	Shader(const std::string& pathName); // Will create a vertex and fragment shader.
 	Shader(const std::string& pathName, unsigned int flags); // The user specifies which shader it should use.
+	Shader(const std::string& fragmentPath, const std::string& vertexPath);
 	~Shader();
 
 	void bind();

@@ -15,6 +15,14 @@ Shader::Shader(const std::string & pathName, unsigned int flags)
 	init(pathName, flags);
 }
 
+Shader::Shader(const std::string & fragmentPath, const std::string & vertexPath)
+{
+	this->id = glCreateProgram();
+	addShaderpart(vertexPath, GL_VERTEX_SHADER);
+	addShaderpart(fragmentPath, GL_FRAGMENT_SHADER);
+	link();
+}
+
 Shader::~Shader()
 {
 	glDeleteProgram(this->id);
