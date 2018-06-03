@@ -1,24 +1,31 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include "SFML\Graphics.hpp"
+#include "GL\glew.h"
+#include "SFML\Window.hpp"
 
 #include <string>
 
 class Display
 {
 public:
+	Display();
 	Display(const std::string& title, unsigned int width, unsigned int height);
 	virtual ~Display();
 
 	void processEvents();
 
-	sf::RenderWindow* getWindowPtr();
+	sf::Window* getWindowPtr();
 
 	bool isOpen();
 
 private:
-	sf::RenderWindow* window;
+	void init();
+
+	sf::Window* window;
+	unsigned int width;
+	unsigned int height;
+	std::string title;
 };
 
 #endif

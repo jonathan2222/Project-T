@@ -1,8 +1,18 @@
 #include "Display.h"
 
-Display::Display(const std::string & title, unsigned int width, unsigned int height)
+#include "DisplayConfig.h"
+#include "../Utils/Error.h"
+
+Display::Display() : title(DEFAULT_DISPLAY_TITLE), width(DEFAULT_DISPLAY_WIDTH), height(DEFAULT_DISPLAY_HEIGHT)
 {
-	this->window = new sf::RenderWindow(sf::VideoMode(width, height), title);
+	this->window = nullptr;
+	init();
+}
+
+Display::Display(const std::string & title, unsigned int width, unsigned int height) : title(title), width(width), height(height)
+{
+	this->window = nullptr;
+	init();
 }
 
 Display::~Display()
@@ -22,7 +32,7 @@ void Display::processEvents()
 	}
 }
 
-sf::RenderWindow * Display::getWindowPtr()
+sf::Window * Display::getWindowPtr()
 {
 	return this->window;
 }
@@ -31,3 +41,22 @@ bool Display::isOpen()
 {
 	return this->window->isOpen();
 }
+
+void Display::init()
+{
+	sf::ContextSettings settings;
+	settings.depthBits = 24;
+	settings.stencilBits = 8;
+	settings.majorVersion = 3;
+	settings.minorVersion = 3;
+	settings.attributeFlags = sf::ContextSettings::Core;
+	this->window = new sf::Window(sf::VideoMode(this->width, this->height), this->title, sf::Style::Titlebar | sf::Style::Close, settings);
+
+	glewExperimental = true; // Needed in core profile
+	if (glewInit() != GLEW_OK)
+	{
+		Error::printError("DISPLAY::init()", "Failed to initialize GLEW!");
+		exit(EXIT_FAILURE);
+	}
+}
+

@@ -80,7 +80,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)Externals\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-network.lib;sfml-system.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-network.lib;sfml-system.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -93,7 +93,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)Externals\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-network.lib;sfml-system.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-network.lib;sfml-system.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,15 +125,50 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GLAbstractions\IndexBuffer.cpp" />
+    <ClCompile Include="GLAbstractions\UniformBuffer.cpp" />
+    <ClCompile Include="GLAbstractions\VertexArray.cpp" />
+    <ClCompile Include="GLAbstractions\VertexBuffer.cpp" />
     <ClCompile Include="GUI\Display.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Maths\Maths.cpp" />
+    <ClCompile Include="Maths\MathsTransform.cpp" />
+    <ClCompile Include="Maths\Matrices\Mat2.cpp" />
+    <ClCompile Include="Maths\Matrices\Mat3.cpp" />
+    <ClCompile Include="Maths\Matrices\Mat4.cpp" />
+    <ClCompile Include="Maths\Vectors\Vec2.cpp" />
+    <ClCompile Include="Maths\Vectors\Vec3.cpp" />
+    <ClCompile Include="Maths\Vectors\Vec4.cpp" />
+    <ClCompile Include="Shaders\Shader.cpp" />
+    <ClCompile Include="Utils\Error.cpp" />
     <ClCompile Include="Utils\Patterns\Observable.cpp" />
     <ClCompile Include="Utils\Patterns\Observer.cpp" />
+    <ClCompile Include="Utils\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLAbstractions\IndexBuffer.h" />
+    <ClInclude Include="GLAbstractions\UniformBuffer.h" />
+    <ClInclude Include="GLAbstractions\VertexArray.h" />
+    <ClInclude Include="GLAbstractions\VertexBuffer.h" />
+    <ClInclude Include="GLAbstractions\VertexBufferLayout.h" />
     <ClInclude Include="GUI\Display.h" />
+    <ClInclude Include="GUI\DisplayConfig.h" />
+    <ClInclude Include="Maths\Maths.h" />
+    <ClInclude Include="Maths\MathsConstants.h" />
+    <ClInclude Include="Maths\MathsTransform.h" />
+    <ClInclude Include="Maths\Matrices\Mat2.h" />
+    <ClInclude Include="Maths\Matrices\Mat3.h" />
+    <ClInclude Include="Maths\Matrices\Mat4.h" />
+    <ClInclude Include="Maths\Vectors\Vec2.h" />
+    <ClInclude Include="Maths\Vectors\Vec3.h" />
+    <ClInclude Include="Maths\Vectors\Vec4.h" />
+    <ClInclude Include="Shaders\Shader.h" />
+    <ClInclude Include="Shaders\ShaderConfig.h" />
+    <ClInclude Include="Utils\Error.h" />
     <ClInclude Include="Utils\Patterns\Observable.h" />
     <ClInclude Include="Utils\Patterns\Observer.h" />
+    <ClInclude Include="Utils\Timer.h" />
+    <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
