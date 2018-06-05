@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ECS\ECSComponent.cpp" />
     <ClCompile Include="GLAbstractions\IndexBuffer.cpp" />
     <ClCompile Include="GLAbstractions\UniformBuffer.cpp" />
     <ClCompile Include="GLAbstractions\VertexArray.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Utils\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ECS\ECSComponent.h" />
     <ClInclude Include="GLAbstractions\IndexBuffer.h" />
     <ClInclude Include="GLAbstractions\UniformBuffer.h" />
     <ClInclude Include="GLAbstractions\VertexArray.h" />

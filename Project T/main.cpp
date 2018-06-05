@@ -8,8 +8,28 @@
 #include "Maths\Vectors\Vec2.h"
 #include "Maths\Vectors\Vec3.h"
 
+#include "ECS\ECSComponent.h"
+
+struct PositionComp : public ECSComponent<PositionComp>
+{
+	float x;
+	float y;
+	float z;
+};
+
+struct HealthComp : public ECSComponent<HealthComp>
+{
+	float health;
+};
+
 int main()
 {
+	PositionComp a, b;
+	HealthComp c, d;
+
+	std::cout << "[Position] a: id = " << a.ID << ", size = " << a.SIZE << " | b: id = " << b.ID << ", size = " << b.SIZE << std::endl;
+	std::cout << "[Health] c: id = " << c.ID << ", size = " << c.SIZE << " | d: id = " << d.ID << ", size = " << d.SIZE << std::endl;
+
 	Display display("Project T", 600, 600);
 
 	VertexArray va;
