@@ -11,7 +11,10 @@ public:
 	Renderer();
 	~Renderer();
 
-	void draw(const VertexArray& va, const IndexBuffer& ib, const Shader* shader = nullptr) const;
+	void bindShader(const Shader* shader = nullptr) const;
+	void draw(const VertexArray& va, const IndexBuffer& ib) const;
+
+	Shader* getDefaultShader() const;
 
 private:
 	Shader * defaultShader;

@@ -44,7 +44,10 @@ void Error::print(const std::string & description1, const std::string & descript
 	}
 	else
 	{
-		std::cout << "[" << description1.c_str() << "::" << description2.c_str() << "]\t" << str.c_str() << std::endl;
+		std::cout << "[" << description1.c_str();
+		if (description2.empty() == false)
+			std::cout << "::" << description2.c_str();
+		std::cout << "]\t" << str.c_str() << std::endl;
 	}
 	FlushConsoleInputBuffer(hstdin);
 

@@ -40,7 +40,8 @@ void ECS::addSystem(ISystem * sys)
 
 void ECS::updateSystems(float dt, Renderer* renderer)
 {
-	// TODO: Make this faster! Maybe constant amount of components and use a bitset to confirm requirements?
+	// TODO: Make this faster! Maybe constant amount of components and use a bitset to confirm requirements? 
+	//						   or make a pool of entities for each system and do the requirerments checking when adding new entities/or systems.
 	std::vector<EntityHandle> requiredEntites;
 	std::unordered_map<ComponentID, IComponent*>::iterator it;
 	for (ISystem* sys : this->systems)

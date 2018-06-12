@@ -15,6 +15,9 @@ public:
 
 	void processEvents();
 
+	void setTitle(const std::string& title);
+	void setTitleSufix(const std::string& sufix);
+
 	sf::Window* getWindowPtr();
 
 	bool isOpen();

@@ -32,6 +32,16 @@ void Display::processEvents()
 	}
 }
 
+void Display::setTitle(const std::string & title)
+{
+	this->window->setTitle(title);
+}
+
+void Display::setTitleSufix(const std::string & sufix)
+{
+	this->window->setTitle(this->title + sufix);
+}
+
 sf::Window * Display::getWindowPtr()
 {
 	return this->window;
