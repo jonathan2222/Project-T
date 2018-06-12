@@ -3,10 +3,12 @@
 
 #include "ECSDefines.h"
 #include <vector>
+#include <unordered_map>
 #include <map>
 #include "Component.h"
 #include "System.h"
 
+class Renderer;
 class ECS
 {
 public:
@@ -15,14 +17,21 @@ public:
 
 	template<typename... C>
 	EntityHandle addEntity();
+	template<typename... C>
+	EntityHandle addEntity(const std::vector<IComponent*>& components);
+
+	EntityHandle addEntity(const std::vector<std::pair<ComponentID, IComponent*>>& components);
 
 	void addSystem(ISystem* sys);
+	void updateSystems(float dt, Renderer* renderer = nullptr);
 	void removeSystem(ISystem* sys);
 
 	template<typename C>
 	void addComponent(EntityHandle entityHandle, C* component);
 	template<typename C>
 	void removeComponent(EntityHandle entityHandle);
+	template<typename C>
+	void deleteComponent(EntityHandle entityHandle);
 
 	template<typename C>
 	bool hasComponent(EntityHandle entityHandle);
@@ -31,7 +40,6 @@ public:
 
 private:
 	std::vector<ISystem*> systems;
-	std::map<ComponentID, std::vector<IComponent*>> components;
 	std::vector< EntityPtr > entities;
 };
 
@@ -42,63 +50,75 @@ inline EntityHandle ECS::addEntity()
 	std::vector<ComponentID> compIDs = { getComponentTypeID<C>()... };
 
 	EntityID id = this->entities.size();
-	EntityHandle entityHandle = new std::pair<EntityID, EntityComponents>(id, std::vector<std::pair<ComponentID, ComponentIndex>>());
+	EntityHandle entityHandle = new std::pair<EntityID, EntityComponents>(id, std::unordered_map<ComponentID, IComponent*>());
+	this->entities.push_back((EntityPtr)entityHandle);
 	for (unsigned int i = 0; i < compIDs.size(); i++)
 	{
-		ComponentIndex index = this->components[compIDs[i]].size();
 		ComponentID id = compIDs[i];
-		this->components[id].push_back(comps[i]);
-		this->components[id][index]->entityHandle = entityHandle;
+		comps[i]->entityHandle = entityHandle;
 		EntityPtr entityPtr = (EntityPtr)entityHandle;
-		entityPtr->second.push_back(std::pair<ComponentID, ComponentIndex>(id, index));
+		entityPtr->second[id] = comps[i];
 	}
+	return entityHandle;
+}
+
+template<typename... C>
+EntityHandle ECS::addEntity(const std::vector<IComponent*>& components)
+{
+	std::vector<ComponentID> compIDs = { getComponentTypeID<C>()... };
+
+	EntityID id = this->entities.size();
+	EntityHandle entityHandle = new std::pair<EntityID, EntityComponents>(id, std::unordered_map<ComponentID, IComponent*>());
 	this->entities.push_back((EntityPtr)entityHandle);
+	for (unsigned int i = 0; i < compIDs.size(); i++)
+	{
+		ComponentID id = compIDs[i];
+		components[i]->entityHandle = entityHandle;
+		EntityPtr entityPtr = (EntityPtr)entityHandle;
+		entityPtr->second[id] = components[i];
+	}
 	return entityHandle;
 }
 
 template<typename C>
 inline void ECS::addComponent(EntityHandle entityHandle, C * component)
 {
-	// This function does not check if the entity already has that type of component.
+	// Does not check if entity already has this type of component!
 	ComponentID compID = component->ID;
-	ComponentIndex index = this->components[compID].size();
 	EntityID entityID = ((EntityPtr)entityHandle)->first;
-	this->components[compID].push_back(component);
-	this->entities[entityID]->second.push_back(std::pair<ComponentID, ComponentIndex>(compID, index));
+	component->entityHandle = entityHandle;
+	this->entities[entityID]->second[compID] = component;
 }
 
 template<typename C>
 inline void ECS::removeComponent(EntityHandle entityHandle)
 {
-	//TODO: Fix this!
-	/*
+	// This dose not delete the element in the unorderd_map, but only deletes the pointer and set it to nullptr.
 	ComponentID compID = getComponentTypeID<C>();
-	ComponentIndex compIndex = 0;
 	EntityComponents& entityComponents = ((EntityPtr)entityHandle)->second;
-	entityComponents.erase(std::remove_if(entityComponents.begin(), entityComponents.end(),
-		[&compIndex, compID](std::pair<ComponentID, ComponentIndex> x) {
-			if (x.first == compID)
-			{
-				compIndex = x.second;
-				return true;
-			}
-			return false; 
-		}),
-		entityComponents.end());
-	delete this->components[compID][compIndex];
-	for (std::map<ComponentID, std::vector<IComponent*>>::iterator it = this->components.begin(); it != this->components.end();)
-	{
-		if (it->first == compID && compIndex > it->second.size())
+	for (std::unordered_map<ComponentID, IComponent*>::iterator it = entityComponents.begin(); it != entityComponents.end(); it++)
+		if (it->first == compID)
 		{
-			if (it->size() > 1)
-			{
-				// Remove 
-			}
-			this->components.erase(it++);
+			delete it->second;
+			it->second = nullptr;
+			return;
 		}
-		else
-		++it;
-	}*/
+}
+
+template<typename C>
+inline void ECS::deleteComponent(EntityHandle entityHandle)
+{
+	ComponentID compID = getComponentTypeID<C>();
+	EntityComponents& entityComponents = ((EntityPtr)entityHandle)->second;
+	for (std::unordered_map<ComponentID, IComponent*>::iterator it = entityComponents.begin(); it != entityComponents.end(); it++)
+	{
+		if (it->first == compID)
+		{
+			delete it->second;
+			entityComponents.erase(it);
+			return;
+		}
+	}
 }
 
 template<typename C>
@@ -112,9 +132,9 @@ inline C* ECS::getComponent(EntityHandle entityHandle)
 {
 	ComponentID compID = getComponentTypeID<C>();
 	EntityComponents& entityComponents = ((EntityPtr)entityHandle)->second;
-	for (std::pair<ComponentID, ComponentIndex>& c : entityComponents)
-		if (c.first == compID)
-			return this->components[c.first][c.second];
+	std::unordered_map<ComponentID, IComponent*>::iterator it = entityComponents.find(compID);
+	if (it != entityComponents.end())
+		return (C*)it->second;
 	return nullptr;
 }
 

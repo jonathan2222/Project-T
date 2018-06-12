@@ -75,6 +75,9 @@
     <ClCompile Include="ECS\ECS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\Display.h">
@@ -156,6 +159,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ECS\ECS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

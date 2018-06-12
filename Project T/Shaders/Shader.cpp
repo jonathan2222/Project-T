@@ -28,12 +28,12 @@ Shader::~Shader()
 	glDeleteProgram(this->id);
 }
 
-void Shader::bind()
+void Shader::bind() const
 {
 	glUseProgram(this->id);
 }
 
-void Shader::unbind()
+void Shader::unbind() const
 {
 	glUseProgram(0);
 }
@@ -93,6 +93,16 @@ void Shader::setUniform4f(const std::string & name, float v1, float v2, float v3
 void Shader::setUniform4fv(const std::string & name, unsigned int count, const float * values)
 {
 	glUniform4fv(addUniform(name), count, values);
+}
+
+void Shader::setUniformMatrix2fv(const std::string & name, unsigned int count, bool transpose, const float * values)
+{
+	glUniformMatrix2fv(addUniform(name), count, transpose, values);
+}
+
+void Shader::setUniformMatrix3fv(const std::string & name, unsigned int count, bool transpose, const float * values)
+{
+	glUniformMatrix3fv(addUniform(name), count, transpose, values);
 }
 
 void Shader::setUniformMatrix4fv(const std::string & name, unsigned int count, bool transpose, const float * values)

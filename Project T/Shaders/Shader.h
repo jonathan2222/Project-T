@@ -16,8 +16,8 @@ public:
 	Shader(const std::string& fragmentPath, const std::string& vertexPath);
 	~Shader();
 
-	void bind();
-	void unbind();
+	void bind() const;
+	void unbind() const;
 
 	void setTexture2D(const std::string& name, unsigned int unit);
 	void setTexture2D(const std::string& name, unsigned int unit, GLuint textureID);
@@ -30,6 +30,8 @@ public:
 	void setUniform3fv(const std::string& name, unsigned int count, const float* values);
 	void setUniform4f(const std::string& name, float v1, float v2, float v3, float v4);
 	void setUniform4fv(const std::string& name, unsigned int count, const float* values);
+	void setUniformMatrix2fv(const std::string& name, unsigned int count, bool transpose, const float* values);
+	void setUniformMatrix3fv(const std::string& name, unsigned int count, bool transpose, const float* values);
 	void setUniformMatrix4fv(const std::string& name, unsigned int count, bool transpose, const float* values);
 
 	const GLuint getID() const;

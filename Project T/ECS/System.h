@@ -5,12 +5,13 @@
 
 #include <vector>
 
+class Renderer;
+class ECS;
 class ISystem
 {
 public:
 	virtual void init() = 0;
-	virtual void update(float dt) = 0;
-	virtual void draw() {};
+	virtual void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs) = 0;
 
 	std::vector<ComponentID> componentRequirements;
 };
@@ -20,6 +21,9 @@ class System : public ISystem
 {
 public:
 	System();
+
+	virtual void init() = 0;
+	virtual void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs) = 0;
 };
 
 template<typename ...Requirements>

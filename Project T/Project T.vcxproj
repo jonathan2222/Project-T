@@ -140,6 +140,7 @@
     <ClCompile Include="Maths\Vectors\Vec2.cpp" />
     <ClCompile Include="Maths\Vectors\Vec3.cpp" />
     <ClCompile Include="Maths\Vectors\Vec4.cpp" />
+    <ClCompile Include="Rendering\Renderer.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
     <ClCompile Include="Utils\Error.cpp" />
     <ClCompile Include="Utils\Patterns\Observable.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="Maths\Vectors\Vec2.h" />
     <ClInclude Include="Maths\Vectors\Vec3.h" />
     <ClInclude Include="Maths\Vectors\Vec4.h" />
+    <ClInclude Include="Rendering\Renderer.h" />
     <ClInclude Include="Shaders\Shader.h" />
     <ClInclude Include="Shaders\ShaderConfig.h" />
     <ClInclude Include="Utils\Error.h" />
