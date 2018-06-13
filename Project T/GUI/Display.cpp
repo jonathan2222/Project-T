@@ -25,9 +25,19 @@ void Display::processEvents()
 	sf::Event evnt;
 	while (this->window->pollEvent(evnt))
 	{
-		if (evnt.type == sf::Event::Closed)
+		switch (evnt.type)
 		{
+		case sf::Event::Closed:
 			this->window->close();
+			break;
+		case sf::Event::KeyPressed:
+			{
+			if (evnt.key.code == sf::Keyboard::Escape)
+				this->window->close();
+			}
+			break;
+		default:
+			break;
 		}
 	}
 }

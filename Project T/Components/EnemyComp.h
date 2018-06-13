@@ -6,7 +6,7 @@
 
 struct EnemyComp : public Component<EnemyComp>
 {
-	EnemyComp(float speed = 0.025f) : speed(speed) { isDead = false; this->dir = std::rand() % 4; }
+	EnemyComp(float speed = 0.5f) : speed(speed) { isDead = false; this->dir = std::rand() % 4; }
 	bool isDead;
 	float speed;
 	int dir;

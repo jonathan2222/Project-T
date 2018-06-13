@@ -25,8 +25,10 @@ public:
 		PositionComp* pos;
 		RectangleComp* rect;
 		ColorComp* color;
-		for (EntityHandle handle : entities)
+		unsigned int numEntities = entities.size();
+		for (unsigned int i = 0; i < numEntities; i++)
 		{
+			EntityHandle handle = entities[i];
 			mc = ecs.getComponent<ModelComp>(handle);
 			pos = ecs.getComponent<PositionComp>(handle);
 			rect = ecs.getComponent<RectangleComp>(handle);

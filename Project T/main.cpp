@@ -17,12 +17,15 @@ class World;
 #include <crtdbg.h>
 
 #include "World.h"
+
 #include "Systems\ColorChangerSys.h"
 #include "Systems\CollisionSys.h"
 #include "Systems\EnemySys.h"
 #include "Systems\PlayerSys.h"
 #include "Systems\SpawnerSys.h"
 #include "Systems\RenderingSys.h"
+#include "Systems\DeleterSys.h"
+
 
 // ---------------------------------------- MAIN ----------------------------------------
 
@@ -34,7 +37,9 @@ int main()
 
 	Display display("Project T", 600, 600);
 	World world;
-
+	world.setDisplay(&display);
+	
+	
 	std::cout << "TimeComp: " << getComponentTypeID<TimeComp>() << std::endl;
 	std::cout << "PositionComp: " << getComponentTypeID<PositionComp>() << std::endl;
 	std::cout << "CollisionComp: " << getComponentTypeID<CollisionComp>() << std::endl;
@@ -43,7 +48,8 @@ int main()
 	std::cout << "RectangleComp: " << getComponentTypeID<RectangleComp>() << std::endl;
 	std::cout << "ModelComp: " << getComponentTypeID<ModelComp>() << std::endl;
 	std::cout << "PlayerComp: " << getComponentTypeID<PlayerComp>() << std::endl;
-
+	
+	
 	Model* m = new Model();
 	struct Vertex
 	{
@@ -64,12 +70,13 @@ int main()
 	unsigned int indices[] = { 0, 2, 1, 0, 3, 2 };
 	m->ib.make(indices, 6);
 	world.addModel(m);
-
+	
 	ECS ecs;
-
+	
 	EntityHandle handle1 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, PlayerComp, ColorComp, CollisionComp>(
 		{ new PositionComp(0.0f, 0.0f), new RectangleComp(0.1f, 0.1f), new ModelComp(world.getNumModels()-1), new PlayerComp(), new ColorComp(), new CollisionComp() }
 	);
+	
 	EntityHandle handle2 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp, SpawnerComp>(
 		{ new PositionComp(0.5f, 0.2f), new RectangleComp(0.05f, 0.05f), new ModelComp(world.getNumModels() - 1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
 	);
@@ -77,14 +84,21 @@ int main()
 		{ new PositionComp(-0.5f, -0.2f), new RectangleComp(0.2f, 0.2f), new ModelComp(world.getNumModels() - 1),new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
 	);
 
+	/*
+	
+		TODO: Make this faster!!!
+
+	*/
+	
 	ecs.setContainer<World>(&world);
 	ecs.addSystem(new CollisionSys());
+	ecs.addSystem(new DeleterSys());
 	ecs.addSystem(new SpawnerSys());
 	ecs.addSystem(new ColorChangerSys());
 	ecs.addSystem(new EnemySys());
 	ecs.addSystem(new PlayerSys());
 	ecs.addSystem(new RenderingSys());
-
+	
 	Shader shader("./Resources/Shaders/test.fs", "./Resources/Shaders/test.vs");
 
 	float dt = 0.0f;
@@ -100,25 +114,21 @@ int main()
 
 		display.getWindowPtr()->setActive();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		dtTimer.restart();
 
 		ecs.updateSystems(dt);
 
-		display.setTitleSufix(" dt: " + std::to_string(dt) + ", FPS: " + std::to_string(fps));
+		display.setTitleSufix(" dt: " + std::to_string(dt) + ", FPS: " + std::to_string(fps) + ", NumEntities: " + std::to_string(ecs.getNumEntities()));
 		
-		dtTimer.update();
-		if (dtTimer.getDeltaTime() > 1.0f / 120.0f)
-		{
-			dt = dtTimer.getDeltaTime();
-			dtTimer.restart();
-		}
-
 		fpsTimer.update();
 		if (fpsTimer.getTime() > 1.0f)
 		{
 			fps = 1.0f / dt;
 			fpsTimer.restart();
 		}
-
+		
+		dtTimer.stop();
+		dt = dtTimer.getTime();
 		display.getWindowPtr()->display();
 	}
 

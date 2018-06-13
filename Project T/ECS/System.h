@@ -12,6 +12,7 @@
 
 class Renderer;
 class ECS;
+class Entity;
 class ISystem
 {
 public:
@@ -22,6 +23,7 @@ public:
 	Bitmask componentBitmask;
 	SystemID systemID;
 	std::unordered_map<EntityID, bool> hasInitialized;
+	std::vector<EntityHandle> entityPool;
 };
 
 template<typename... Requirements>

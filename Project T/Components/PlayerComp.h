@@ -5,7 +5,7 @@
 
 struct PlayerComp : public Component<PlayerComp>
 {
-	PlayerComp(float speed = 0.025f) : speed(speed) {}
+	PlayerComp(float speed = 0.7f) : speed(speed) {}
 	float speed;
 };
 

@@ -25,15 +25,17 @@ public:
 	}
 	void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
 	{
-		for (EntityHandle handle : entities)
+		unsigned int numEntities = entities.size();
+		for (unsigned int i = 0; i < numEntities; i++)
 		{
+			EntityHandle handle = entities[i];
 			PositionComp* pos = ecs.getComponent<PositionComp>(handle);
 			PlayerComp* player = ecs.getComponent<PlayerComp>(handle);
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) pos->x -= player->speed*dt;
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) pos->x += player->speed*dt;
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) pos->y += player->speed*dt;
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) pos->y -= player->speed*dt;
-
+			
 			RectangleComp* rect = ecs.getComponent<RectangleComp>(handle);
 			float w2 = rect->width / 2.0f;
 			float h2 = rect->height / 2.0f;

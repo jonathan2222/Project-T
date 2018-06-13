@@ -15,7 +15,7 @@
 
 #include "../World.h"
 
-class SpawnerSys : public System<SpawnerComp, CollisionComp>
+class SpawnerSys : public System<SpawnerComp, CollisionComp, ColorComp>
 {
 public:
 	void init(const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
@@ -30,19 +30,25 @@ public:
 	}
 	void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
 	{
-		for (EntityHandle handle : entities)
+		unsigned int numEntities = entities.size();
+		for (unsigned int i = 0; i < numEntities; i++)
 		{
+			EntityHandle handle = entities[i];
 			SpawnerComp* spawner = ecs.getComponent<SpawnerComp>(handle);
 			CollisionComp* coll = ecs.getComponent<CollisionComp>(handle);
-			if (Utils::isBitSet<Bitmask>(coll->collidedWith, getComponentTypeID<PlayerComp>()) && spawner->hasSpawnd == false)
+			if ((Utils::isBitSet<Bitmask>(coll->collidedWith, getComponentTypeID<PlayerComp>()) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F)) && spawner->hasSpawnd == false)
 			{
 				//Spawn
 				spawner->pos.x = ((std::rand() % 100) / 100.0f)*2.0f - 1.0f;
 				spawner->pos.y = ((std::rand() % 100) / 100.0f)*2.0f - 1.0f;
 
 				ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp, SpawnerComp>(
-					{ new PositionComp(spawner->pos.x, spawner->pos.y), new RectangleComp(0.05f, 0.05f), new ModelComp(container->getNumModels()-1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
+					{ new PositionComp(spawner->pos.x, spawner->pos.y), new RectangleComp(0.05f, 0.05f), new ModelComp(container->getNumModels() - 1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
 				);
+				ColorComp* color = ecs.getComponent<ColorComp>(handle);
+				color->r *= 0.5f;
+				color->g *= 0.5f;
+				color->b *= 0.5f;
 				spawner->hasSpawnd = true;
 			}
 		}

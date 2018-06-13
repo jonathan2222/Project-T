@@ -19,8 +19,10 @@ public:
 	}
 	void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
 	{
-		for (EntityHandle handle : entities)
+		unsigned int numEntities = entities.size();
+		for (unsigned int i = 0; i < numEntities; i++)
 		{
+			EntityHandle handle = entities[i];
 			PositionComp* pos = ecs.getComponent<PositionComp>(handle);
 			RectangleComp* rect = ecs.getComponent<RectangleComp>(handle);
 			CollisionComp* coll = ecs.getComponent<CollisionComp>(handle);

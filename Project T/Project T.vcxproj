@@ -166,6 +166,7 @@
     <ClInclude Include="Rendering\Model.h" />
     <ClInclude Include="Systems\CollisionSys.h" />
     <ClInclude Include="Systems\ColorChangerSys.h" />
+    <ClInclude Include="Systems\DeleterSys.h" />
     <ClInclude Include="Systems\EnemySys.h" />
     <ClInclude Include="Systems\PlayerSys.h" />
     <ClInclude Include="Systems\RenderingSys.h" />

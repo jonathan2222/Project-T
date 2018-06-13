@@ -10,7 +10,7 @@ World::World()
 
 World::~World()
 {
-	delete renderer;
+	delete this->renderer;
 	for (Model* m : this->models)
 		delete m;
 }
@@ -33,4 +33,14 @@ Model * World::getModel(unsigned int index) const
 unsigned int World::getNumModels() const
 {
 	return this->models.size();
+}
+
+void World::setDisplay(Display * display)
+{
+	this->display = display;
+}
+
+Display * World::getDisplay()
+{
+	return this->display;
 }

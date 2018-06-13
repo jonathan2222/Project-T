@@ -26,6 +26,7 @@ public:
 	EntityHandle addEntity();
 	template<typename... C>
 	EntityHandle addEntity(const std::vector<IComponent*>& components);
+	void deleteEntity(EntityHandle handle);
 
 	void addSystem(ISystem* sys);
 	void updateSystems(float dt);
@@ -37,6 +38,7 @@ public:
 	void removeComponent(EntityHandle entityHandle);
 	template<typename C>
 	void deleteComponent(EntityHandle entityHandle);
+	void deleteComponents(EntityHandle entityHandle);
 
 	template<typename C>
 	bool hasComponent(EntityHandle entityHandle);
@@ -45,6 +47,8 @@ public:
 
 	template<typename T>
 	void setContainer(T* container);
+
+	unsigned int getNumEntities() const;
 
 	struct Entity
 	{
@@ -62,6 +66,9 @@ public:
 	};
 
 private:
+	void addEntityToSystems(EntityHandle handle);
+	void removeEntityFromPool(ISystem* sys, EntityHandle handle);
+
 	std::vector<ISystem*> systems;
 	std::vector< Entity* > entities;
 	Container* container;
@@ -87,6 +94,7 @@ inline EntityHandle ECS::addEntity()
 	}
 	((Entity*)entityHandle)->updateBitset();
 	this->entities.push_back((Entity*)entityHandle);
+	addEntityToSystems(entityHandle);
 	return entityHandle;
 }
 
@@ -109,6 +117,7 @@ EntityHandle ECS::addEntity(const std::vector<IComponent*>& components)
 	}
 	((Entity*)entityHandle)->updateBitset();
 	this->entities.push_back((Entity*)entityHandle);
+	addEntityToSystems(entityHandle);
 	return entityHandle;
 }
 
@@ -142,11 +151,12 @@ inline void ECS::removeComponent(EntityHandle entityHandle)
 	if (it != entityComponents.end())
 	{
 		Bitmask entityBitmask = entity->componentBitmask;
-		entity->systems.erase(std::remove_if(entity->systems.begin(), entity->systems.end(), [&entityBitmask, &eID](ISystem* isys) {
+		entity->systems.erase(std::remove_if(entity->systems.begin(), entity->systems.end(), [entityHandle, &entityBitmask, &eID](ISystem* isys) {
 			Bitmask sysBitmask = isys->componentBitmask;
 			if ((entityBitmask & sysBitmask) == sysBitmask)
 			{
 				isys->hasInitialized[eID] = false;
+				removeEntityFromPool(isys, entityHandle);
 				return true;
 			}
 			else return false;
@@ -173,11 +183,12 @@ inline void ECS::deleteComponent(EntityHandle entityHandle)
 	if (it != entityComponents.end())
 	{
 		Bitmask entityBitmask = entity->componentBitmask;
-		entity->systems.erase(std::remove_if(entity->systems.begin(), entity->systems.end(), [&entityBitmask, &eID](ISystem* isys) {
+		entity->systems.erase(std::remove_if(entity->systems.begin(), entity->systems.end(), [entityHandle, &entityBitmask, &eID](ISystem* isys) {
 			Bitmask sysBitmask = isys->componentBitmask;
 			if ((entityBitmask & sysBitmask) == sysBitmask)
 			{
 				isys->hasInitialized[eID] = false;
+				removeEntityFromPool(isys, entityHandle);
 				return true;
 			}
 			else return false;
