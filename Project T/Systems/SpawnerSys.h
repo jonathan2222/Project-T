@@ -34,14 +34,14 @@ public:
 		{
 			SpawnerComp* spawner = ecs.getComponent<SpawnerComp>(handle);
 			CollisionComp* coll = ecs.getComponent<CollisionComp>(handle);
-			if (coll->hasCollided && spawner->hasSpawnd == false)
+			if (Utils::isBitSet<Bitmask>(coll->collidedWith, getComponentTypeID<PlayerComp>()) && spawner->hasSpawnd == false)
 			{
 				//Spawn
 				spawner->pos.x = ((std::rand() % 100) / 100.0f)*2.0f - 1.0f;
 				spawner->pos.y = ((std::rand() % 100) / 100.0f)*2.0f - 1.0f;
 
-				ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
-					{ new PositionComp(spawner->pos.x, spawner->pos.y), new RectangleComp(0.05f, 0.05f), new ModelComp(container->getNumModels()-1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
+				ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp, SpawnerComp>(
+					{ new PositionComp(spawner->pos.x, spawner->pos.y), new RectangleComp(0.05f, 0.05f), new ModelComp(container->getNumModels()-1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
 				);
 				spawner->hasSpawnd = true;
 			}

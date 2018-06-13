@@ -66,25 +66,21 @@ int main()
 	world.addModel(m);
 
 	ECS ecs;
-	/*
-	
-	TODO: Make it so the user can use same Component on many entities!
-	
-	*/
-	EntityHandle handle1 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, PlayerComp, ColorComp, CollisionComp, SpawnerComp>(
-		{ new PositionComp(0.0f, 0.0f), new RectangleComp(0.1f, 0.1f), new ModelComp(world.getNumModels()-1), new PlayerComp(), new ColorComp(), new CollisionComp(), new SpawnerComp() }
+
+	EntityHandle handle1 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, PlayerComp, ColorComp, CollisionComp>(
+		{ new PositionComp(0.0f, 0.0f), new RectangleComp(0.1f, 0.1f), new ModelComp(world.getNumModels()-1), new PlayerComp(), new ColorComp(), new CollisionComp() }
 	);
-	EntityHandle handle2 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
-		{ new PositionComp(0.5f, 0.2f), new RectangleComp(0.05f, 0.05f), new ModelComp(world.getNumModels() - 1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
+	EntityHandle handle2 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp, SpawnerComp>(
+		{ new PositionComp(0.5f, 0.2f), new RectangleComp(0.05f, 0.05f), new ModelComp(world.getNumModels() - 1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
 	);
-	EntityHandle handle3 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
-		{ new PositionComp(-0.5f, -0.2f), new RectangleComp(0.2f, 0.2f), new ModelComp(world.getNumModels() - 1),new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
+	EntityHandle handle3 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp, SpawnerComp>(
+		{ new PositionComp(-0.5f, -0.2f), new RectangleComp(0.2f, 0.2f), new ModelComp(world.getNumModels() - 1),new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp(), new SpawnerComp() }
 	);
 
 	ecs.setContainer<World>(&world);
-	ecs.addSystem(new ColorChangerSys());
 	ecs.addSystem(new CollisionSys());
 	ecs.addSystem(new SpawnerSys());
+	ecs.addSystem(new ColorChangerSys());
 	ecs.addSystem(new EnemySys());
 	ecs.addSystem(new PlayerSys());
 	ecs.addSystem(new RenderingSys());
@@ -92,7 +88,10 @@ int main()
 	Shader shader("./Resources/Shaders/test.fs", "./Resources/Shaders/test.vs");
 
 	float dt = 0.0f;
-	Timer timer;
+	Timer dtTimer;
+
+	float fps = 0.0f;
+	Timer fpsTimer;
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	while (display.isOpen())
@@ -103,15 +102,21 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ecs.updateSystems(dt);
-		//world.getRenderer()->draw(m->va, m->ib);
 
-		display.setTitleSufix(" dt: " + std::to_string(dt));
+		display.setTitleSufix(" dt: " + std::to_string(dt) + ", FPS: " + std::to_string(fps));
 		
-		timer.update();
-		if (timer.getDeltaTime() > 1.0f / 60.0f)
+		dtTimer.update();
+		if (dtTimer.getDeltaTime() > 1.0f / 120.0f)
 		{
-			dt = timer.getDeltaTime();
-			timer.restart();
+			dt = dtTimer.getDeltaTime();
+			dtTimer.restart();
+		}
+
+		fpsTimer.update();
+		if (fpsTimer.getTime() > 1.0f)
+		{
+			fps = 1.0f / dt;
+			fpsTimer.restart();
 		}
 
 		display.getWindowPtr()->display();

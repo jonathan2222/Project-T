@@ -15,27 +15,6 @@ public:
 	{
 		for (EntityHandle handle : entities)
 		{
-			/*
-			ModelComp* m = ecs.getComponent<ModelComp>(handle);
-			struct Vertex
-			{
-				Vec2 pos;
-				Vec3 color;
-			};
-			Vertex data[4] = {
-				{ Vec2(-1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f) },
-				{ Vec2(1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f) },
-				{ Vec2(1.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) },
-				{ Vec2(-1.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) }
-			};
-			VertexBuffer vb(data, sizeof(Vertex) * 4);
-			VertexBufferLayout layout;
-			layout.push<float>(2); // Pos
-			layout.push<float>(3); // Color
-			m->va.addBuffer(vb, layout);
-			unsigned int indices[] = { 0, 2, 1, 0, 3, 2 };
-			m->ib.make(indices, 6);
-			*/
 			std::cout << "RenderSys INIT" << std::endl;
 		}
 	}

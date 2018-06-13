@@ -24,8 +24,7 @@ public:
 			PositionComp* pos = ecs.getComponent<PositionComp>(handle);
 			RectangleComp* rect = ecs.getComponent<RectangleComp>(handle);
 			CollisionComp* coll = ecs.getComponent<CollisionComp>(handle);
-
-			bool collided = false;
+			coll->collidedWith = 0;
 			for (EntityHandle handle2 : entities)
 			{
 				if (handle2 != handle)
@@ -39,11 +38,10 @@ public:
 							std::min(pos->y + rect->height / 2.0f, pos2->y + rect2->height / 2.0f))
 						{
 							// Collision!
-							collided = true;
+							coll->collidedWith |= ((ECS::Entity*)handle2)->componentBitmask;
 						}
 				}
 			}
-			coll->hasCollided = collided;
 		}
 	}
 private:

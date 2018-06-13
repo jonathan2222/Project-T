@@ -7,6 +7,8 @@
 #include "../ECS/ECS.h"
 #include <iostream>
 
+#include "../Components/PlayerComp.h"
+
 class ColorChangerSys : public System<ColorComp, CollisionComp>
 {
 public:
@@ -25,7 +27,7 @@ public:
 		{
 			ColorComp* color = ecs.getComponent<ColorComp>(handle);
 			CollisionComp* coll = ecs.getComponent<CollisionComp>(handle);
-			if (coll->hasCollided)
+			if (Utils::isBitSet<Bitmask>(coll->collidedWith, getComponentTypeID<PlayerComp>()))
 				color->r = color->g = color->b = 0.25f;
 		}
 	}

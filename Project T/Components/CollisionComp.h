@@ -5,8 +5,11 @@
 
 struct CollisionComp : public Component<CollisionComp>
 {
-	CollisionComp() { hasCollided = false; }
-	bool hasCollided;
+	CollisionComp() 
+	{ 
+		this->collidedWith = 0; 
+	}
+	Bitmask collidedWith;
 };
 
 
