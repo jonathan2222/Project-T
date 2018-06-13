@@ -28,7 +28,7 @@ public:
 			std::cout << "SpawnerSys INIT" << std::endl;
 		}
 	}
-	void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs, Container* container)
+	void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
 	{
 		for (EntityHandle handle : entities)
 		{
@@ -41,7 +41,7 @@ public:
 				spawner->pos.y = ((std::rand() % 100) / 100.0f)*2.0f - 1.0f;
 
 				ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
-					{ new PositionComp(spawner->pos.x, spawner->pos.y), new RectangleComp(0.05f, 0.05f), container->createModelComp(), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
+					{ new PositionComp(spawner->pos.x, spawner->pos.y), new RectangleComp(0.05f, 0.05f), new ModelComp(container->getNumModels()-1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
 				);
 				spawner->hasSpawnd = true;
 			}

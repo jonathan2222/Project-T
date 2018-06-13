@@ -19,7 +19,7 @@ public:
 			std::cout << "ColorChangerSys INIT" << std::endl;
 		}
 	}
-	void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs, Container* container)
+	void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
 	{
 		for (EntityHandle handle : entities)
 		{

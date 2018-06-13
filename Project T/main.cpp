@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "GUI\Display.h"
-#include "Rendering\Renderer.h"
 
 #include "Maths\Vectors\Vec2.h"
 #include "Maths\Vectors\Vec3.h"
@@ -34,7 +33,6 @@ int main()
 	std::srand((unsigned int)std::time(nullptr));
 
 	Display display("Project T", 600, 600);
-	Renderer renderer;
 	World world;
 
 	std::cout << "TimeComp: " << getComponentTypeID<TimeComp>() << std::endl;
@@ -46,35 +44,7 @@ int main()
 	std::cout << "ModelComp: " << getComponentTypeID<ModelComp>() << std::endl;
 	std::cout << "PlayerComp: " << getComponentTypeID<PlayerComp>() << std::endl;
 
-	ECS ecs;
-	/*
-	
-	TODO: Make it so the user can use same Component on many entities!
-	
-	*/
-	EntityHandle handle1 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, PlayerComp, ColorComp, CollisionComp, SpawnerComp>(
-		{ new PositionComp(0.0f, 0.0f), new RectangleComp(0.1f, 0.1f), new ModelComp(), new PlayerComp(), new ColorComp(), new CollisionComp(), new SpawnerComp() }
-	);
-	EntityHandle handle2 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
-		{ new PositionComp(0.5f, 0.2f), new RectangleComp(0.05f, 0.05f), new ModelComp(), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
-	);
-	EntityHandle handle3 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
-		{ new PositionComp(-0.5f, -0.2f), new RectangleComp(0.2f, 0.2f), new ModelComp(), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
-	);
-
-	ecs.setContainer<World>(&world);
-	ecs.addSystem(new ColorChangerSys());
-	ecs.addSystem(new CollisionSys());
-	ecs.addSystem(new SpawnerSys());
-	ecs.addSystem(new EnemySys());
-	ecs.addSystem(new PlayerSys());
-	ecs.addSystem(new RenderingSys());
-
-
-	Shader shader("./Resources/Shaders/test.fs", "./Resources/Shaders/test.vs");
-
-
-	ModelComp* m = new ModelComp();
+	Model* m = new Model();
 	struct Vertex
 	{
 		Vec2 pos;
@@ -93,10 +63,36 @@ int main()
 	m->va.addBuffer(vb, layout);
 	unsigned int indices[] = { 0, 2, 1, 0, 3, 2 };
 	m->ib.make(indices, 6);
+	world.addModel(m);
+
+	ECS ecs;
+	/*
+	
+	TODO: Make it so the user can use same Component on many entities!
+	
+	*/
+	EntityHandle handle1 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, PlayerComp, ColorComp, CollisionComp, SpawnerComp>(
+		{ new PositionComp(0.0f, 0.0f), new RectangleComp(0.1f, 0.1f), new ModelComp(world.getNumModels()-1), new PlayerComp(), new ColorComp(), new CollisionComp(), new SpawnerComp() }
+	);
+	EntityHandle handle2 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
+		{ new PositionComp(0.5f, 0.2f), new RectangleComp(0.05f, 0.05f), new ModelComp(world.getNumModels() - 1), new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
+	);
+	EntityHandle handle3 = ecs.addEntity<PositionComp, RectangleComp, ModelComp, EnemyComp, ColorComp, CollisionComp, TimeComp>(
+		{ new PositionComp(-0.5f, -0.2f), new RectangleComp(0.2f, 0.2f), new ModelComp(world.getNumModels() - 1),new EnemyComp(), new ColorComp(), new CollisionComp(), new TimeComp() }
+	);
+
+	ecs.setContainer<World>(&world);
+	ecs.addSystem(new ColorChangerSys());
+	ecs.addSystem(new CollisionSys());
+	ecs.addSystem(new SpawnerSys());
+	ecs.addSystem(new EnemySys());
+	ecs.addSystem(new PlayerSys());
+	ecs.addSystem(new RenderingSys());
+
+	Shader shader("./Resources/Shaders/test.fs", "./Resources/Shaders/test.vs");
 
 	float dt = 0.0f;
 	Timer timer;
-	
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	while (display.isOpen())
@@ -106,8 +102,8 @@ int main()
 		display.getWindowPtr()->setActive();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		ecs.updateSystems(dt, &renderer);
-		renderer.draw(m->va, m->ib);
+		ecs.updateSystems(dt);
+		//world.getRenderer()->draw(m->va, m->ib);
 
 		display.setTitleSufix(" dt: " + std::to_string(dt));
 		
@@ -120,7 +116,6 @@ int main()
 
 		display.getWindowPtr()->display();
 	}
-	delete m;
 
 	return 0;
 }

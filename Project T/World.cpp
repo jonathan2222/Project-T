@@ -5,39 +5,32 @@
 
 World::World()
 {
-	this->mc = createModelComp();
+	this->renderer = new Renderer();
 }
 
 World::~World()
 {
-	delete this->mc;
+	delete renderer;
+	for (Model* m : this->models)
+		delete m;
 }
 
-ModelComp * World::getModelComp() const
+const Renderer * World::getRenderer() const
 {
-	return this->mc;
+	return this->renderer;
 }
 
-ModelComp * World::createModelComp() const
+void World::addModel(Model * model)
 {
-	ModelComp* m = new ModelComp();
-	struct Vertex
-	{
-		Vec2 pos;
-		Vec3 color;
-	};
-	Vertex data[4] = {
-		{ Vec2(-1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f) },
-	{ Vec2(1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f) },
-	{ Vec2(1.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) },
-	{ Vec2(-1.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) }
-	};
-	VertexBuffer vb(data, sizeof(Vertex) * 4);
-	VertexBufferLayout layout;
-	layout.push<float>(2); // Pos
-	layout.push<float>(3); // Color
-	m->va.addBuffer(vb, layout);
-	unsigned int indices[] = { 0, 2, 1, 0, 3, 2 };
-	m->ib.make(indices, 6);
-	return m;
+	this->models.push_back(model);
+}
+
+Model * World::getModel(unsigned int index) const
+{
+	return this->models[index];
+}
+
+unsigned int World::getNumModels() const
+{
+	return this->models.size();
 }

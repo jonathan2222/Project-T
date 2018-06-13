@@ -16,7 +16,7 @@ class ISystem
 {
 public:
 	virtual void init(const std::vector<EntityHandle>& entities, ECS& ecs, Container* container = nullptr) = 0;
-	virtual void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs, Container* container = nullptr) = 0;
+	virtual void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container = nullptr) = 0;
 
 	std::vector<ComponentID> componentRequirements;
 	Bitmask componentBitmask;
@@ -31,7 +31,7 @@ public:
 	System();
 
 	virtual void init(const std::vector<EntityHandle>& entities, ECS& ecs, Container* container = nullptr) = 0;
-	virtual void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs, Container* container = nullptr) = 0;
+	virtual void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container = nullptr) = 0;
 };
 
 template<typename ...Requirements>

@@ -163,6 +163,7 @@
     <ClInclude Include="ECS\ECSContainerDefine.h" />
     <ClInclude Include="ECS\ECSDefines.h" />
     <ClInclude Include="ECS\System.h" />
+    <ClInclude Include="Rendering\Model.h" />
     <ClInclude Include="Systems\CollisionSys.h" />
     <ClInclude Include="Systems\ColorChangerSys.h" />
     <ClInclude Include="Systems\EnemySys.h" />

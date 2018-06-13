@@ -8,8 +8,6 @@
 #include "../ECS/ECS.h"
 #include <iostream>
 
-#include "../Rendering/Renderer.h"
-
 class RenderingSys : public System<PositionComp, ModelComp, RectangleComp, ColorComp>
 {
 public:
@@ -17,6 +15,7 @@ public:
 	{
 		for (EntityHandle handle : entities)
 		{
+			/*
 			ModelComp* m = ecs.getComponent<ModelComp>(handle);
 			struct Vertex
 			{
@@ -36,11 +35,11 @@ public:
 			m->va.addBuffer(vb, layout);
 			unsigned int indices[] = { 0, 2, 1, 0, 3, 2 };
 			m->ib.make(indices, 6);
-
+			*/
 			std::cout << "RenderSys INIT" << std::endl;
 		}
 	}
-	void update(float dt, const std::vector<EntityHandle>& entities, Renderer* renderer, ECS& ecs, Container* container)
+	void update(float dt, const std::vector<EntityHandle>& entities, ECS& ecs, Container* container)
 	{
 		//std::cout << "Update RenderSys!" << std::endl;
 		ModelComp* mc;
@@ -53,11 +52,13 @@ public:
 			pos = ecs.getComponent<PositionComp>(handle);
 			rect = ecs.getComponent<RectangleComp>(handle);
 			color = ecs.getComponent<ColorComp>(handle);
-			renderer->bindShader();
-			renderer->getDefaultShader()->setUniform2f("offset", pos->x, pos->y);
-			renderer->getDefaultShader()->setUniform2f("scale", rect->width / 2.0f, rect->height / 2.0f);
-			renderer->getDefaultShader()->setUniform3f("tint", color->r, color->g, color->b);
-			renderer->draw(mc->va, mc->ib);
+			container->getRenderer()->bindShader();
+			container->getRenderer()->getDefaultShader()->setUniform2f("offset", pos->x, pos->y);
+			container->getRenderer()->getDefaultShader()->setUniform2f("scale", rect->width / 2.0f, rect->height / 2.0f);
+			container->getRenderer()->getDefaultShader()->setUniform3f("tint", color->r, color->g, color->b);
+
+			Model* m = container->getModel(mc->modelIndex);
+			container->getRenderer()->draw(m->va, m->ib);
 		}
 	}
 };

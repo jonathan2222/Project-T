@@ -28,7 +28,7 @@ public:
 	EntityHandle addEntity(const std::vector<IComponent*>& components);
 
 	void addSystem(ISystem* sys);
-	void updateSystems(float dt, Renderer* renderer = nullptr);
+	void updateSystems(float dt);
 	void removeSystem(ISystem* sys);
 
 	template<typename C>

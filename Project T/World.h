@@ -1,7 +1,8 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include "Components\ModelComp.h"
+#include "Rendering\Renderer.h"
+#include "Rendering\Model.h"
 
 class World
 {
@@ -9,11 +10,15 @@ public:
 	World();
 	~World();
 
-	ModelComp* getModelComp() const;
-	ModelComp* createModelComp() const;
+	const Renderer* getRenderer() const;
+
+	void addModel(Model* model);
+	Model* getModel(unsigned int index) const;
+	unsigned int getNumModels() const;
 
 private:
-	ModelComp * mc;
+	std::vector<Model*> models;
+	Renderer* renderer;
 };
 
 #endif

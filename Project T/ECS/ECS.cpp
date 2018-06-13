@@ -36,7 +36,7 @@ void ECS::addSystem(ISystem * sys)
 	this->systems.push_back(sys);
 }
 
-void ECS::updateSystems(float dt, Renderer* renderer)
+void ECS::updateSystems(float dt)
 {
 	static std::vector<EntityHandle> requiredEntities;
 	static std::vector<EntityHandle> requiredEntitiesInit;
@@ -67,7 +67,7 @@ void ECS::updateSystems(float dt, Renderer* renderer)
 
 		if(!requiredEntitiesInit.empty())
 			sys->init(requiredEntitiesInit, *this, this->container);
-		sys->update(dt, requiredEntities, renderer, *this, this->container);
+		sys->update(dt, requiredEntities, *this, this->container);
 		requiredEntities.clear();
 		requiredEntitiesInit.clear();
 	}
