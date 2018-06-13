@@ -126,6 +126,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ECS\ECS.cpp" />
+    <ClCompile Include="World.cpp" />
     <ClCompile Include="GLAbstractions\IndexBuffer.cpp" />
     <ClCompile Include="GLAbstractions\UniformBuffer.cpp" />
     <ClCompile Include="GLAbstractions\VertexArray.cpp" />
@@ -148,10 +149,27 @@
     <ClCompile Include="Utils\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\CollisionComp.h" />
+    <ClInclude Include="Components\ColorComp.h" />
+    <ClInclude Include="Components\EnemyComp.h" />
+    <ClInclude Include="Components\ModelComp.h" />
+    <ClInclude Include="Components\PlayerComp.h" />
+    <ClInclude Include="Components\PositionComp.h" />
+    <ClInclude Include="Components\RectangleComp.h" />
+    <ClInclude Include="Components\SpawnerComp.h" />
+    <ClInclude Include="Components\TimerComp.h" />
     <ClInclude Include="ECS\Component.h" />
     <ClInclude Include="ECS\ECS.h" />
+    <ClInclude Include="ECS\ECSContainerDefine.h" />
     <ClInclude Include="ECS\ECSDefines.h" />
     <ClInclude Include="ECS\System.h" />
+    <ClInclude Include="Systems\CollisionSys.h" />
+    <ClInclude Include="Systems\ColorChangerSys.h" />
+    <ClInclude Include="Systems\EnemySys.h" />
+    <ClInclude Include="Systems\PlayerSys.h" />
+    <ClInclude Include="Systems\RenderingSys.h" />
+    <ClInclude Include="Systems\SpawnerSys.h" />
+    <ClInclude Include="World.h" />
     <ClInclude Include="GLAbstractions\IndexBuffer.h" />
     <ClInclude Include="GLAbstractions\UniformBuffer.h" />
     <ClInclude Include="GLAbstractions\VertexArray.h" />
@@ -171,6 +189,7 @@
     <ClInclude Include="Rendering\Renderer.h" />
     <ClInclude Include="Shaders\Shader.h" />
     <ClInclude Include="Shaders\ShaderConfig.h" />
+    <ClInclude Include="Utils\BitManipulation.h" />
     <ClInclude Include="Utils\Error.h" />
     <ClInclude Include="Utils\Patterns\Observable.h" />
     <ClInclude Include="Utils\Patterns\Observer.h" />

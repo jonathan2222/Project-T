@@ -7,11 +7,8 @@
 
 #include "../Maths/Maths.h"
 
-class Utils
+namespace Utils
 {
-private:
-
-public:
 	static const std::string toHex(int value)
 	{
 		std::stringstream ss;
@@ -87,6 +84,6 @@ public:
 			}
 		return str;
 	}
-};
+}
 
 #endif

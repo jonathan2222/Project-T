@@ -1,10 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
-#include <cstddef>
-
 #include "ECSDefines.h"
-
 
 class IComponent
 {
@@ -29,12 +26,12 @@ template<typename T>
 class Component : public IComponent
 {
 public:
-	static const std::size_t SIZE;
+	static const unsigned int SIZE;
 	static const ComponentID ID;
 };
 
 template<typename T>
-const std::size_t Component<T>::SIZE(sizeof(T));
+const unsigned int Component<T>::SIZE(sizeof(T));
 
 template<typename T>
 const ComponentID Component<T>::ID(getComponentTypeID<T>());

@@ -2,11 +2,18 @@
 #define ECS_H
 
 #include "ECSDefines.h"
+
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <bitset>
+#include <cassert>
+
 #include "Component.h"
 #include "System.h"
+#include "../Utils/BitManipulation.h"
+
+#include "ECSContainerDefine.h"
 
 class Renderer;
 class ECS
@@ -19,8 +26,6 @@ public:
 	EntityHandle addEntity();
 	template<typename... C>
 	EntityHandle addEntity(const std::vector<IComponent*>& components);
-
-	EntityHandle addEntity(const std::vector<std::pair<ComponentID, IComponent*>>& components);
 
 	void addSystem(ISystem* sys);
 	void updateSystems(float dt, Renderer* renderer = nullptr);
@@ -38,9 +43,28 @@ public:
 	template<typename C>
 	C* getComponent(EntityHandle entityHandle);
 
+	template<typename T>
+	void setContainer(T* container);
+
+	struct Entity
+	{
+		Entity(EntityID id, const EntityComponents& components) : entityID(id), components(components) { this->componentBitmask = 0; updateBitset(); }
+		void updateBitset()
+		{
+			for (EntityComponents::iterator it = this->components.begin(); it != this->components.end(); it++)
+				if (it->second != nullptr)
+					Utils::setBit<Bitmask>(this->componentBitmask, it->first);
+		}
+		EntityComponents components;
+		EntityID entityID;
+		Bitmask componentBitmask;
+		std::vector<ISystem*> systems;
+	};
+
 private:
 	std::vector<ISystem*> systems;
-	std::vector< EntityPtr > entities;
+	std::vector< Entity* > entities;
+	Container* container;
 };
 
 template<typename ...C>
@@ -50,15 +74,19 @@ inline EntityHandle ECS::addEntity()
 	std::vector<ComponentID> compIDs = { getComponentTypeID<C>()... };
 
 	EntityID id = this->entities.size();
-	EntityHandle entityHandle = new std::pair<EntityID, EntityComponents>(id, std::unordered_map<ComponentID, IComponent*>());
-	this->entities.push_back((EntityPtr)entityHandle);
+	EntityHandle entityHandle = new Entity(id, std::unordered_map<ComponentID, IComponent*>());
 	for (unsigned int i = 0; i < compIDs.size(); i++)
 	{
 		ComponentID id = compIDs[i];
+#ifdef ECS_DEBUG
+		assert(id < MAX_NUM_COMPONENTS);
+#endif
 		comps[i]->entityHandle = entityHandle;
-		EntityPtr entityPtr = (EntityPtr)entityHandle;
-		entityPtr->second[id] = comps[i];
+		Entity* entityPtr = (Entity*)entityHandle;
+		entityPtr->components[id] = comps[i];
 	}
+	((Entity*)entityHandle)->updateBitset();
+	this->entities.push_back((Entity*)entityHandle);
 	return entityHandle;
 }
 
@@ -68,15 +96,19 @@ EntityHandle ECS::addEntity(const std::vector<IComponent*>& components)
 	std::vector<ComponentID> compIDs = { getComponentTypeID<C>()... };
 
 	EntityID id = this->entities.size();
-	EntityHandle entityHandle = new std::pair<EntityID, EntityComponents>(id, std::unordered_map<ComponentID, IComponent*>());
-	this->entities.push_back((EntityPtr)entityHandle);
+	EntityHandle entityHandle = new Entity(id, std::unordered_map<ComponentID, IComponent*>());
 	for (unsigned int i = 0; i < compIDs.size(); i++)
 	{
 		ComponentID id = compIDs[i];
+#ifdef ECS_DEBUG
+		assert(id < MAX_NUM_COMPONENTS);
+#endif
 		components[i]->entityHandle = entityHandle;
-		EntityPtr entityPtr = (EntityPtr)entityHandle;
-		entityPtr->second[id] = components[i];
+		Entity* entityPtr = (Entity*)entityHandle;
+		entityPtr->components[id] = components[i];
 	}
+	((Entity*)entityHandle)->updateBitset();
+	this->entities.push_back((Entity*)entityHandle);
 	return entityHandle;
 }
 
@@ -85,9 +117,14 @@ inline void ECS::addComponent(EntityHandle entityHandle, C * component)
 {
 	// Does not check if entity already has this type of component!
 	ComponentID compID = component->ID;
-	EntityID entityID = ((EntityPtr)entityHandle)->first;
+#ifdef ECS_DEBUG
+	assert(compID < MAX_NUM_COMPONENTS);
+#endif
+	EntityID entityID = ((Entity*)entityHandle)->entityID;
 	component->entityHandle = entityHandle;
-	this->entities[entityID]->second[compID] = component;
+	Entity* entity = this->entities[entityID];
+	entity->components[compID] = component;
+	Utils::setBit<Bitmask>(entity->componentBitmask, compID);
 }
 
 template<typename C>
@@ -95,47 +132,89 @@ inline void ECS::removeComponent(EntityHandle entityHandle)
 {
 	// This dose not delete the element in the unorderd_map, but only deletes the pointer and set it to nullptr.
 	ComponentID compID = getComponentTypeID<C>();
-	EntityComponents& entityComponents = ((EntityPtr)entityHandle)->second;
-	for (std::unordered_map<ComponentID, IComponent*>::iterator it = entityComponents.begin(); it != entityComponents.end(); it++)
-		if (it->first == compID)
-		{
-			delete it->second;
-			it->second = nullptr;
-			return;
-		}
+#ifdef ECS_DEBUG
+	assert(compID < MAX_NUM_COMPONENTS);
+#endif
+	Entity* entity = (Entity*)entityHandle;
+	EntityID eID = entity->entityID;
+	EntityComponents& entityComponents = entity->components;
+	EntityComponents::iterator it = entityComponents.find(compID);
+	if (it != entityComponents.end())
+	{
+		Bitmask entityBitmask = entity->componentBitmask;
+		entity->systems.erase(std::remove_if(entity->systems.begin(), entity->systems.end(), [&entityBitmask, &eID](ISystem* isys) {
+			Bitmask sysBitmask = isys->componentBitmask;
+			if ((entityBitmask & sysBitmask) == sysBitmask)
+			{
+				isys->hasInitialized[eID] = false;
+				return true;
+			}
+			else return false;
+		}), entity->systems.end());
+
+		Utils::clearBit<Bitmask>(((Entity*)it->second->entityHandle)->componentBitmask, compID);
+		delete it->second;
+		it->second = nullptr;
+		return;
+	}
+	
 }
 
 template<typename C>
 inline void ECS::deleteComponent(EntityHandle entityHandle)
 {
 	ComponentID compID = getComponentTypeID<C>();
-	EntityComponents& entityComponents = ((EntityPtr)entityHandle)->second;
-	for (std::unordered_map<ComponentID, IComponent*>::iterator it = entityComponents.begin(); it != entityComponents.end(); it++)
+#ifdef ECS_DEBUG
+	assert(compID < MAX_NUM_COMPONENTS);
+#endif
+	EntityID eID = entity->entityID;
+	EntityComponents& entityComponents = (((Entity*))entityHandle)->components;
+	EntityComponents::iterator it = entityComponents.find(compID);
+	if (it != entityComponents.end())
 	{
-		if (it->first == compID)
-		{
-			delete it->second;
-			entityComponents.erase(it);
-			return;
-		}
+		Bitmask entityBitmask = entity->componentBitmask;
+		entity->systems.erase(std::remove_if(entity->systems.begin(), entity->systems.end(), [&entityBitmask, &eID](ISystem* isys) {
+			Bitmask sysBitmask = isys->componentBitmask;
+			if ((entityBitmask & sysBitmask) == sysBitmask)
+			{
+				isys->hasInitialized[eID] = false;
+				return true;
+			}
+			else return false;
+		}), entity->systems.end());
+
+		Utils::clearBit<Bitmask>(((Entity*)it->second->entityHandle)->componentBitmask, compID);
+		delete it->second;
+		entityComponents.erase(it);
+		return;
 	}
 }
 
 template<typename C>
 inline bool ECS::hasComponent(EntityHandle entityHandle)
 {
-	return getComponent<C>(entityHandle) != nullptr;
+	ComponentID compID = getComponentTypeID<C>();
+#ifdef ECS_DEBUG
+	assert(compID < MAX_NUM_COMPONENTS);
+#endif
+	return Utils::isBitSet<Bitmask>(((Entity*)entityHandle)->componentBitmask, compID);
 }
 
 template<typename C>
 inline C* ECS::getComponent(EntityHandle entityHandle)
 {
 	ComponentID compID = getComponentTypeID<C>();
-	EntityComponents& entityComponents = ((EntityPtr)entityHandle)->second;
-	std::unordered_map<ComponentID, IComponent*>::iterator it = entityComponents.find(compID);
-	if (it != entityComponents.end())
-		return (C*)it->second;
-	return nullptr;
+#ifdef ECS_DEBUG
+	assert(compID < MAX_NUM_COMPONENTS);
+#endif
+	EntityComponents& entityComponents = ((Entity*)entityHandle)->components;
+	return (C*)entityComponents[compID];
+}
+
+template<typename T>
+inline void ECS::setContainer(T * container)
+{
+	this->container = (Container*)container;
 }
 
 #endif

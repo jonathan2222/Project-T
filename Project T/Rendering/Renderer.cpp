@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "..\Maths\Vectors\Vec2.h"
+#include "GL\glew.h"
 
 Renderer::Renderer()
 {

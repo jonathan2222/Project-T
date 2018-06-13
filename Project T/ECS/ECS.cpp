@@ -10,58 +10,66 @@ ECS::~ECS()
 	for (ISystem* sys : this->systems)
 		delete sys;
 	// Delete entites and its components.
-	for (EntityPtr e : this->entities)
+	for (Entity* e : this->entities)
 	{
-		for(std::unordered_map<ComponentID, IComponent*>::iterator it = e->second.begin(); it != e->second.end(); it++)
+		for(EntityComponents::iterator it = e->components.begin(); it != e->components.end(); it++)
 			delete it->second;
 		delete e;
 	}
 }
 
-EntityHandle ECS::addEntity(const std::vector<std::pair<ComponentID, IComponent*>>& components)
-{
-	EntityID id = this->entities.size();
-	EntityHandle entityHandle = new std::pair<EntityID, EntityComponents>(id, std::unordered_map<ComponentID, IComponent*>());
-	this->entities.push_back((EntityPtr)entityHandle);
-	for (unsigned int i = 0; i < components.size(); i++)
-	{
-		components[i].second->entityHandle = entityHandle;
-		EntityPtr entityPtr = (EntityPtr)entityHandle;
-		entityPtr->second[components[i].first] = components[i].second;
-	}
-	return entityHandle;
-}
-
 void ECS::addSystem(ISystem * sys)
 {
-	sys->init();
+	std::vector<EntityHandle> requiredEntitiesInit;
+	Bitmask sysBitmask = sys->componentBitmask;
+	for (Entity* entity : this->entities)
+	{
+		Bitmask entityBitmask = entity->componentBitmask;
+		if ((entityBitmask & sysBitmask) == sysBitmask)
+		{
+			entity->systems.push_back(sys);
+			sys->hasInitialized[entity->entityID] = true;
+			requiredEntitiesInit.push_back(entity);
+		}
+	}
+	sys->init(requiredEntitiesInit, *this, this->container);
 	this->systems.push_back(sys);
 }
 
 void ECS::updateSystems(float dt, Renderer* renderer)
 {
-	// TODO: Make this faster! Maybe constant amount of components and use a bitset to confirm requirements? 
-	//						   or make a pool of entities for each system and do the requirerments checking when adding new entities/or systems.
-	std::vector<EntityHandle> requiredEntites;
+	static std::vector<EntityHandle> requiredEntities;
+	static std::vector<EntityHandle> requiredEntitiesInit;
 	std::unordered_map<ComponentID, IComponent*>::iterator it;
 	for (ISystem* sys : this->systems)
 	{
-		const std::vector<ComponentID>& requirements = sys->componentRequirements;
-		for (EntityPtr entity : this->entities)
+		Bitmask sysBitmask = sys->componentBitmask;
+		unsigned int entitySize = this->entities.size();
+		for (unsigned int i = 0; i < entitySize; i++)
 		{
-			bool hasComponents = true;
-			for (unsigned int i = 0; i < requirements.size() && hasComponents; i++)
+			Entity* entity = this->entities[i];
+			Bitmask entityBitmask = entity->componentBitmask;
+			if ((entityBitmask & sysBitmask) == sysBitmask)
 			{
-				const ComponentID& id = requirements[i];
-				it = entity->second.find(id);
-				if (it == entity->second.end())
-					hasComponents = false;
+				requiredEntities.push_back(entity);
+				std::unordered_map<EntityID, bool>::iterator it = sys->hasInitialized.find(entity->entityID);
+				if (it == sys->hasInitialized.end() || it->second == false)
+				{
+					if (it == sys->hasInitialized.end())
+						sys->hasInitialized[entity->entityID] = true;
+					else
+						it->second = true;
+					entity->systems.push_back(sys);
+					requiredEntitiesInit.push_back(entity);
+				}
 			}
-			if(hasComponents)
-				requiredEntites.push_back(entity);
 		}
-		sys->update(dt, requiredEntites, renderer, *this);
-		requiredEntites.clear();
+
+		if(!requiredEntitiesInit.empty())
+			sys->init(requiredEntitiesInit, *this, this->container);
+		sys->update(dt, requiredEntities, renderer, *this, this->container);
+		requiredEntities.clear();
+		requiredEntitiesInit.clear();
 	}
 }
 
